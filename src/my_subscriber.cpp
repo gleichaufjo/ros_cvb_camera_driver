@@ -53,14 +53,31 @@ std::cout << " Try " << std::endl;
     auto stream = Cvb::DeviceFactory::Open(Cvb::ExpandPath(CVB_LIT("%CVB%/drivers/GenICam.vin")))->Stream();
     stream->Start();
 
-
+   sensor_msgs::Image image;
+   cv_bridge::CvImagePtr frame;
+   cv::Mat Input;
+   cv::Mat cropped;
+   cv::Mat Output;
    while(ros::ok())
    {
       // wait for an image with a timeout of 10 seconds
       auto waitResult = stream->WaitFor(std::chrono::milliseconds(10000));
       if (waitResult.Status == Cvb::WaitStatus::Ok)
       {
-        pub.publish(toImageMsg(waitResult.Image));
+    	image = toImageMsg(waitResult.Image);
+    	frame = cv_bridge::toCvCopy(image, sensor_msgs::image_encodings::RGB8);
+    	Input = frame->image;
+    	// remove black stripes from fish eye camera image
+    	cv::Rect cropArea(195, 0 , 1546, 1216);
+    	cropped = Input(cropArea);
+    	cv::resize(cropped, Output, cv::Size(), 1, 1);
+    	cv_bridge::CvImage resizeRos;
+    	resizeRos.encoding = "rgb8";
+    	resizeRos.image = Output;
+    	sensor_msgs::ImagePtr imagePtr = resizeRos.toImageMsg();
+    	imagePtr->header.stamp = ros::Time::now();
+    	pub.publish(imagePtr);
+//        pub.publish(toImageMsg(waitResult.Image));
         ros::spinOnce();
       }
       else
