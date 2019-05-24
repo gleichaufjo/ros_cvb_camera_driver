@@ -11,7 +11,7 @@
 #include <sensor_msgs/CameraInfo.h>
 
 sensor_msgs::CameraInfo                 _camera_info;
-image_transport::CameraPublisher*       _camera_info_pub     = NULL;
+//image_transport::CameraPublisher*       _camera_info_pub     = NULL;
 camera_info_manager::CameraInfoManager* _camera_info_manager = NULL;
 
 void callback(const sensor_msgs::ImageConstPtr& image)
@@ -50,9 +50,11 @@ int main(int argc, char **argv)
   ros::NodeHandle nh_("~");
   ros::NodeHandle n;
   image_transport::ImageTransport it(n);
-  image_transport::Publisher pub = it.advertise("camera/image", 1);
+  std::cout << "changes here " << std::endl;
+  image_transport::Publisher pub = it.advertise("/jai_camera/image_raw", 1);
+  ros::Publisher camera_info_pub = n.advertise<sensor_msgs::CameraInfo>("/jai_camera/camera_info", 1);
 
-    image_transport::Subscriber sub = it.subscribe("camera/image", 1, callback);
+    image_transport::Subscriber sub = it.subscribe("/jai_camera/image_raw", 1, callback);
 
     std::string camera_name;
      std::string camera_info_url;
@@ -117,14 +119,18 @@ std::cout << " Try " << std::endl;
     	cv_bridge::CvImage resizeRos;
     	resizeRos.encoding = "rgb8";
     	resizeRos.image = Output;
-//    	resizeRos.toImageMsg(imageRos);
     	sensor_msgs::ImagePtr imagePtr = resizeRos.toImageMsg();
-    	imagePtr->header.stamp = ros::Time::now();
-//    	_camera_info = _camera_info_manager->getCameraInfo();
-//    	_camera_info.header = imageRos.header;
-//    	_camera_info_pub->publish(imageRos, _camera_info);
+//    	imagePtr->header.stamp = ros::Time::now(); // NICHT verwenden! Sonst passen timestamps bei camera_info nicht dazu
+//
+    	resizeRos.toImageMsg(imageRos);
+    	_camera_info = _camera_info_manager->getCameraInfo();
+    	_camera_info.header = imageRos.header;
+//    	_camera_info.header.stamp = ros::Time::now(); // NICHT verwenden! Sonst passen timestamps bei camera_info nicht dazu
+    	_camera_info.height = imageRos.height;
+    	_camera_info.width = imageRos.width;
+    	camera_info_pub.publish(_camera_info);
     	pub.publish(imagePtr);
-//        pub.publish(toImageMsg(waitResult.Image));
+    	//        pub.publish(toImageMsg(waitResult.Image));
         ros::spinOnce();
       }
       else
