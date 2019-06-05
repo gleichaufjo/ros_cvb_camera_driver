@@ -19,13 +19,16 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/ros_cvb_camera_driver</url> -->
+  <url type="website">https://github.com/gleichaufjo/ros_cvb_camera_driver</url> 
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
   <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="c.hartmann@stemmer-imaging.de">Christopher Hartmann</author> 
+  <author email="johanna.gleichauf@th-nuernberg.de">Johanna Gleichauf</author>
+  <maintainer email="johanna.gleichauf@th-nuernberg.de">Johanna Gleichauf</maintainer>
+ 
 
 
   <!-- The *depend tags are used to specify dependencies -->
